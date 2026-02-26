@@ -41,6 +41,8 @@ class FortiMailAPI(object):
 
         self._session.verify = False
 
+        self.flg_debug = False
+
         LOG.setLevel(logging.INFO)
 
     def logging(self, response):
@@ -56,6 +58,10 @@ class FortiMailAPI(object):
     def debug(self, status):
         if status == 'on':
             LOG.setLevel(logging.DEBUG)
+            self.flg_debug = True
+        else:
+            LOG.setLevel(logging.INFO)
+            self.flg_debug = False
 
     def format_response(self, res):
         return json.loads(res.content.decode('utf-8'))
@@ -83,10 +89,13 @@ class FortiMailAPI(object):
         self._session.headers = {'content-type': "application/json" }
         res = self._session.post(url, data=payload)
 
-        self._fortiversion = res.json()['product_version']
-        self.store_session_cookie(res.cookies)
+        if res:
+            if self.flg_debug:
+                LOG.debug("result = %s", res)
+            self._fortiversion = res.json().get('product_version', 'Unknown')
+            self.store_session_cookie(res.cookies)
 
-        self.logging(res)
+            self.logging(res)
 
     def get_version(self):
         return self._fortiversion
