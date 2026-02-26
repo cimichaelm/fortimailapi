@@ -31,6 +31,14 @@ import logging
 
 LOG = logging.getLogger('fortimailapi')
 
+
+class FortiMailAPIError(Exception):
+    """Base exception for FortiMail API errors."""
+
+
+class FortiMailAuthError(FortiMailAPIError):
+    """Raised when authentication/login fails."""
+
 class FortiMailAPI(object):
     def __init__(self):
         self._https = False
@@ -64,7 +72,13 @@ class FortiMailAPI(object):
             self.flg_debug = False
 
     def format_response(self, res):
-        return json.loads(res.content.decode('utf-8'))
+        try:
+            return json.loads(res.content.decode('utf-8'))
+        except Exception:
+            return {
+                'http_status': getattr(res, 'status_code', None),
+                'raw': res.content.decode('utf-8', errors='replace')
+            }
 
 
     def https(self, status):
@@ -87,15 +101,43 @@ class FortiMailAPI(object):
         url = self.url_prefix + '/api/v1/AdminLogin'
         payload = '{"name":"' + username + '","password":"' + password + '"}'
         self._session.headers = {'content-type': "application/json" }
-        res = self._session.post(url, data=payload)
+        try:
+            res = self._session.post(url, data=payload)
+        except requests.RequestException as exc:
+            LOG.debug("request exception during login: %s", exc)
+            raise FortiMailAPIError("Connection error during login") from exc
 
-        if res:
-            if self.flg_debug:
-                LOG.debug("result = %s", res)
-            self._fortiversion = res.json().get('product_version', 'Unknown')
-            self.store_session_cookie(res.cookies)
+        # always log request/response debug info
+        self.logging(res)
 
-            self.logging(res)
+        # try to parse JSON body if present
+        try:
+            body = res.json()
+        except Exception:
+            body = None
+
+        # if HTTP error code, raise
+        if not res.ok:
+            msg = None
+            if isinstance(body, dict):
+                msg = body.get('errorMsg') or body.get('message')
+            raise FortiMailAPIError(
+                "Login request failed: {}".format(msg or res.reason)
+            )
+
+        # some FortiMail responses use an "errorType"/"errorMsg" payload
+        if isinstance(body, dict) and (body.get('errorType') or body.get('errorMsg')):
+            err = body.get('errorMsg') or body.get('message') or str(body)
+            raise FortiMailAuthError("Authentication failed: {}".format(err))
+
+        # success
+        if self.flg_debug:
+            LOG.debug("result = %s", res)
+        try:
+            self._fortiversion = body.get('product_version', 'Unknown') if isinstance(body, dict) else 'Unknown'
+        except Exception:
+            self._fortiversion = 'Unknown'
+        self.store_session_cookie(res.cookies)
 
     def get_version(self):
         return self._fortiversion
