@@ -37,3 +37,13 @@ Note: Ensure there is ~/.pypirc file with chmod 600 permissions and the followin
             repository=https://testpypi.python.org/pypi
             username=your_user
             password=your_password
+
+
+## Local development information
+
+### Installation
+
+Can be installed directly from this repository using the following in requirements.txt
+
+git+https://github.com/cimichaelm/fortimailapi.git
+
