@@ -35,8 +35,10 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/fortinet-solutions-cse/fortimailapi"
-Repository = "https://github.com/fortinet-solutions-cse/fortimailapi"
+#Homepage = "https://github.com/fortinet-solutions-cse/fortimailapi"
+#Repository = "https://github.com/fortinet-solutions-cse/fortimailapi"
+Homepage = "https://github.com/cimichaelm/fortimailapi"
+Repository = "https://github.com/cimichaelm/fortimailapi"
 
 [tool.setuptools.packages.find]
 include = ["fortimailapi*"]

@@ -1,5 +1,7 @@
 # FortiMail API Python 
 
+Local project fork for development
+
 Python library to configure Fortinet's FortiMail devices (REST API)
 
 
