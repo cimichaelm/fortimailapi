@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fortimailapi"
+version = "0.1.1"
+description = "Python modules to interact with FortiMail product from Fortinet using REST API"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+  { name = "M A M A", email = "ma-hidden@ftnt.com" },
+]
+keywords = ["Fortinet", "fortimail", "rest", "api"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Security",
+]
+dependencies = [
+  "requests",
+]
+
+[project.optional-dependencies]
+test = [
+  "packaging",
+  "pytest",
+]
+
+[project.urls]
+Homepage = "https://github.com/fortinet-solutions-cse/fortimailapi"
+Repository = "https://github.com/fortinet-solutions-cse/fortimailapi"
+
+[tool.setuptools.packages.find]
+include = ["fortimailapi*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
